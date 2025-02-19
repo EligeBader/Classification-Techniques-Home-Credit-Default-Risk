@@ -39,6 +39,8 @@ Submissions are evaluated on the area under the ROC curve (AUC) between the pred
 - **installments_payments.csv:** Repayment history for previously disbursed credits.
 - **HomeCredit_columns_description.csv:** Column descriptions for the datasets.
 
+---
+
 ### 🛠 Tools & Technologies
 - **Python 3.8+:** Primary programming language
 - **Pandas:** Data manipulation and analysis
@@ -46,6 +48,8 @@ Submissions are evaluated on the area under the ROC curve (AUC) between the pred
 - **TensorFlow & Keras:** Neural network models
 - **Imbalanced-learn:** Handling imbalanced datasets
 - **Jupyter Notebook:** Interactive coding and exploration
+
+---
 
 ### 🔄 Workflow
 
@@ -73,6 +77,8 @@ Submissions are evaluated on the area under the ROC curve (AUC) between the pred
 6. **Evaluation:**
     - Evaluated the models using metrics like ROC-AUC, accuracy, precision, recall, and F1-score to determine their performance.
 
+---
+
 ### 📂 Project Structure
 
 ```
@@ -97,6 +103,7 @@ Submissions are evaluated on the area under the ROC curve (AUC) between the pred
     - predictions_nn.csv
   - README.md
 ```
+---
 
 ### 🧩 Models and Results
 
@@ -115,9 +122,12 @@ Submissions are evaluated on the area under the ROC curve (AUC) between the pred
 - **Neural Network:**
     - Flexible and powerful model using deep learning techniques.
     - Achieved high accuracy and ROC-AUC with optimized architecture and parameters.
+---
 
 ### 🎯 Best Model
 Based on the evaluation metrics, the **XGBoost** model provided the best performance in terms of ROC-AUC and overall predictive power.
+
+---
 
 ### 🌟 Improvements
 To enhance this project further, consider:
