@@ -9,8 +9,25 @@ Many people struggle to get loans due to insufficient or non-existent credit his
 
 **Home Credit Group** strives to broaden financial inclusion for the unbanked population by providing a positive and safe borrowing experience. They use a variety of alternative data—including telco and transactional information—to predict their clients' repayment abilities. Although Home Credit currently uses various statistical and machine learning methods for these predictions, they are challenging Kagglers to help unlock the full potential of their data to ensure clients capable of repayment are not rejected and that loans are given with an appropriate principal, maturity, and repayment schedule to empower their clients' success.
 
+---
+
+### 🏢 Benefits to the Company and Stakeholders
+
+This project not only aims to improve the credit risk assessment process but also offers substantial benefits to the company and its stakeholders:
+
+- **Increased Accuracy:** By leveraging advanced machine learning techniques, the company can achieve more accurate credit risk predictions, reducing the likelihood of defaults and financial losses.
+- **Customer Satisfaction:** Providing loans to eligible clients who might otherwise be rejected due to traditional credit scoring methods, leading to higher customer satisfaction and retention.
+- **Financial Inclusion:** Broadening access to credit for the unbanked population, contributing to greater financial inclusion and economic growth.
+- **Risk Management:** Better risk management through improved prediction models, ensuring that loans are granted to clients with a higher probability of repayment.
+- **Stakeholder Trust:** Enhancing trust and credibility with investors, regulators, and customers by demonstrating a commitment to using cutting-edge technology for responsible lending practices.
+- **Operational Efficiency:** Streamlining the credit approval process with automated and efficient models, reducing manual efforts and operational costs.
+
+---
+
 ### 📊 Evaluation
 Submissions are evaluated on the area under the ROC curve (AUC) between the predicted probability and the observed target.
+
+---
 
 ### 📁 Dataset Description
 - **application_{train|test}.csv:** Main table, static data for all applications. One row represents one loan.
