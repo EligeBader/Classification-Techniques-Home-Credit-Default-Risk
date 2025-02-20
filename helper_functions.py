@@ -23,6 +23,10 @@ from keras.models import Sequential
 from keras.layers import Dense, Input, BatchNormalization, Dropout
 from keras.callbacks import EarlyStopping
 import keras 
+import optuna
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 
 # %%
 
@@ -36,7 +40,7 @@ def load_data(file):
 
     Returns:
     DataFrame: The loaded data as a pandas DataFrame.
-    '''
+     '''
     df = pd.read_parquet(file, engine='pyarrow')
 
     return df
@@ -237,29 +241,88 @@ with open('encode_data.pickle', 'wb') as f:
 
 
 # %%
-def train_model(xtrain, ytrain, model_class, **kwargs):
-    '''
+def train_model(model_class, X_train, y_train, param_grid={}, best_combination=False, n_trials=10, **args):
+    """
     Train a model using the specified model class and parameters.
 
     Parameters:
-    xtrain (DataFrame): The training features.
-    ytrain (Series): The training target.
-    model_class (class): The model class to use for training.
-    kwargs: Additional parameters for the model.
+    model_class (class): Model class to be used for training.
+    X_train (pd.DataFrame): Training features.
+    y_train (pd.Series): Training target.
+    param_grid (dict, optional): Parameter grid for GridSearchCV/ RandomizedSearchCV. Defaults to {}.
+    best_combination (bool, optional): Whether to use GridSearchCV/RandomizedSearchCV for best parameter combination. Defaults to False.
+    n_trials (int, optional): Number of trials for Optuna. Defaults to 10.
+    **args: Additional arguments for the model class.
 
     Returns:
-    model: The trained model.
-    '''
+    model: Trained model.
+    """
 
-    model = model_class(**kwargs)
-    model.fit(xtrain, ytrain)
+    if best_combination:
+        model = model_class(**args)
+        
+        # Optuna
+        def objective(trial):
+            params = {key: trial.suggest_categorical(key, value) if isinstance(value, list) else trial.suggest_uniform(key, value[0], value[1]) for key, value in param_grid.items()}
+            model.set_params(**params)
+            model.fit(X_train, y_train)
+            y_pred = model.predict_proba(X_train)[:, 1]
+            auc = roc_auc_score(y_train, y_pred)
+            return auc
 
-    return model
+        study = optuna.create_study(direction='maximize')
+        study.optimize(objective, n_trials=n_trials)
+        best_params_optuna = study.best_params
+        best_model_optuna = model.set_params(**best_params_optuna)
+        best_model_optuna.fit(X_train, y_train)
 
+        # GridSearchCV
+        grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=3, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        best_params_grid = grid_search.best_params_
+        best_model_grid = grid_search.best_estimator_
+
+        # RandomizedSearchCV
+        random_search = RandomizedSearchCV(estimator=model, param_distributions=param_grid, cv=3, n_iter=n_trials, n_jobs=-1)
+        random_search.fit(X_train, y_train)
+        best_params_random = random_search.best_params_
+        best_model_random = random_search.best_estimator_
+
+        # Compare models and select the best one
+        models = {
+            'Optuna': best_model_optuna,
+            'GridSearchCV': best_model_grid,
+            'RandomizedSearchCV': best_model_random,
+        }
+
+        best_model_name = None
+        best_model_score = -float('inf')
+        best_model = None
+
+        for name, model in models.items():
+            y_pred = model.predict_proba(X_train)[:, 1]
+            auc = roc_auc_score(y_train, y_pred)
+            if auc > best_model_score:
+                best_model_score = auc
+                best_model_name = name
+                best_model = model
+
+        print(f"Best model: {best_model_name} with AUC: {best_model_score}")
+
+        return best_model
+
+    else:
+        model = model_class(**args)
+        model.fit(X_train, y_train)
+        model_to_save = model
+
+    with open('trained_model.pickle', 'wb') as f:
+        dill.dump(model_to_save, f)
+
+    return model_to_save
 
 with open('train_model.pickle', 'wb') as f:
-    dill.dump(train_model, f)   
-
+    dill.dump(train_model, f)
 
 
 
