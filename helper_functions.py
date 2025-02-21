@@ -257,11 +257,11 @@ def train_model(model_class, X_train, y_train, param_grid={}, best_combination=F
     Returns:
     model: Trained model.
     """
-
+    
     if best_combination:
         model = model_class(**args)
         
-        # Optuna
+        # Define objective function for Optuna
         def objective(trial):
             params = {key: trial.suggest_categorical(key, value) if isinstance(value, list) else trial.suggest_uniform(key, value[0], value[1]) for key, value in param_grid.items()}
             model.set_params(**params)
@@ -270,19 +270,20 @@ def train_model(model_class, X_train, y_train, param_grid={}, best_combination=F
             auc = roc_auc_score(y_train, y_pred)
             return auc
 
+        # Optimize parameters using Optuna
         study = optuna.create_study(direction='maximize')
         study.optimize(objective, n_trials=n_trials)
         best_params_optuna = study.best_params
         best_model_optuna = model.set_params(**best_params_optuna)
         best_model_optuna.fit(X_train, y_train)
 
-        # GridSearchCV
+        # Optimize parameters using GridSearchCV
         grid_search = GridSearchCV(estimator=model, param_grid=param_grid, cv=3, n_jobs=-1)
         grid_search.fit(X_train, y_train)
         best_params_grid = grid_search.best_params_
         best_model_grid = grid_search.best_estimator_
 
-        # RandomizedSearchCV
+        # Optimize parameters using RandomizedSearchCV
         random_search = RandomizedSearchCV(estimator=model, param_distributions=param_grid, cv=3, n_iter=n_trials, n_jobs=-1)
         random_search.fit(X_train, y_train)
         best_params_random = random_search.best_params_
@@ -312,15 +313,18 @@ def train_model(model_class, X_train, y_train, param_grid={}, best_combination=F
         return best_model
 
     else:
+        # Train model without hyperparameter optimization
         model = model_class(**args)
         model.fit(X_train, y_train)
         model_to_save = model
 
+    # Save the trained model
     with open('trained_model.pickle', 'wb') as f:
         dill.dump(model_to_save, f)
 
     return model_to_save
 
+# Save the train_model function
 with open('train_model.pickle', 'wb') as f:
     dill.dump(train_model, f)
 
